@@ -1,5 +1,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+val exposedVersion: String by project
+val h2Version: String by project
+val logbackVersion: String by project
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
@@ -23,6 +27,11 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation(compose.materialIconsExtended)
+                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+                implementation("com.h2database:h2:$h2Version")
             }
         }
         val jvmTest by getting
