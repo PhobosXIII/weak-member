@@ -7,7 +7,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 
 object Questions : IntIdTable() {
     val text = text(name = "text")
-    val complexity = byte(name = "complexity")
+    val complexity = integer(name = "complexity")
     val pack = reference(name = "pack", foreign = QuestionPacks)
 }
 

@@ -1,5 +1,6 @@
 package screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 import navigation.NavController
 import navigation.createPackScreenRoute
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 
 @Composable
 fun PacksScreen(navController: NavController) {
@@ -51,12 +53,8 @@ fun PacksScreen(navController: NavController) {
             )
         },
         content = {
-            var packs by remember { mutableStateOf(emptyList<QuestionPack>()) }
-
-            coroutineScope.launch {
-                packs = newSuspendedTransaction(Dispatchers.IO) {
-                    QuestionPack.all().toList()
-                }
+            val packs = transaction {
+                QuestionPack.all().toList()
             }
 
             Box(
@@ -78,6 +76,7 @@ fun PacksScreen(navController: NavController) {
                 } else {
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         items(packs) { pack ->
                             Button(onClick = {
