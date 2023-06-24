@@ -11,7 +11,7 @@ class NavController(
 ) {
     var currentScreen: MutableState<String> = mutableStateOf(startDestination)
 
-    fun navigate(route: String) {
+    fun navigate(route: String, addToBackStack: Boolean = true) {
         if (route != currentScreen.value) {
             if (backStackScreens.contains(currentScreen.value) && currentScreen.value != startDestination) {
                 backStackScreens.remove(currentScreen.value)
@@ -20,7 +20,7 @@ class NavController(
             if (route == startDestination) {
                 backStackScreens = mutableSetOf()
             } else {
-                backStackScreens.add(currentScreen.value)
+                if (addToBackStack) backStackScreens.add(currentScreen.value)
             }
 
             currentScreen.value = route

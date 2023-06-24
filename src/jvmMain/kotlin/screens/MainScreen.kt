@@ -24,5 +24,10 @@ fun MainScreen(navController: NavController) {
         ) {
             Text(text = "Пакеты вопросов")
         }
+
+        Button(onClick = { navController.navigate(Screen.GamesScreen.name) }
+        ) {
+            Text(text = "Игры")
+        }
     }
 }

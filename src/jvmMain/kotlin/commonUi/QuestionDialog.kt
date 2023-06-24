@@ -37,6 +37,9 @@ fun QuestionDialog(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
+                label = {
+                    Text(text = "Текст вопроса")
+                },
             )
 
             SpacerHeight(16.dp)

@@ -52,44 +52,43 @@ fun PacksScreen(navController: NavController) {
                 onBackClick = { navController.navigateBack() },
             )
         },
-        content = {
-            val packs = transaction {
-                QuestionPack.all().toList()
-            }
+    ) {
+        val packs = transaction {
+            QuestionPack.all().toList()
+        }
 
-            Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                AddPackButton(
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    onImport = {},
-                    onCreate = {
-                        isDialogOpen = true
-                    }
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            AddPackButton(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onImport = {},
+                onCreate = {
+                    isDialogOpen = true
+                }
+            )
+
+            if (packs.isEmpty()) {
+                Text(
+                    text = "Вы пока не добавили ни одного пакета вопрпосов.",
                 )
-
-                if (packs.isEmpty()) {
-                    Text(
-                        text = "Вы не добавили пока ни одного пакета вопрпосов.",
-                    )
-                } else {
-                    LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        items(packs) { pack ->
-                            Button(onClick = {
-                                navController.navigate(createPackScreenRoute(pack.id.value))
-                            }) {
-                                Text(text = pack.name)
-                            }
+            } else {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    items(packs) { pack ->
+                        Button(onClick = {
+                            navController.navigate(createPackScreenRoute(pack.id.value))
+                        }) {
+                            Text(text = pack.name)
                         }
                     }
                 }
             }
         }
-    )
+    }
 }
 
 @Composable

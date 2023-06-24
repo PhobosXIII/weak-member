@@ -1,9 +1,7 @@
 package navigation
 
 import androidx.compose.runtime.Composable
-import screens.MainScreen
-import screens.PackScreen
-import screens.PacksScreen
+import screens.*
 
 @Composable
 fun CustomNavigationHost(
@@ -20,6 +18,18 @@ fun CustomNavigationHost(
 
         composable(Screen.PackScreen.name) {
             PackScreen(navController)
+        }
+
+        composable(Screen.GamesScreen.name) {
+            GamesScreen(navController)
+        }
+
+        composable(Screen.GameScreen.name) {
+            GameScreen(navController)
+        }
+
+        composable(Screen.CreateGameScreen.name) {
+            CreateGameScreen(navController)
         }
     }.build()
 }

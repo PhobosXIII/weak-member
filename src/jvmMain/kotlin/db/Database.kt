@@ -1,9 +1,6 @@
 package db
 
-import db.entities.Question
-import db.entities.QuestionPack
-import db.entities.QuestionPacks
-import db.entities.Questions
+import db.entities.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -22,7 +19,7 @@ class Database {
 
         fun fillData() {
             transaction {
-                SchemaUtils.create(QuestionPacks, Questions)
+                SchemaUtils.create(QuestionPacks, Questions, Games, Players, Rounds)
 
                 val testPack = QuestionPack.new {
                     name = "Test pack"

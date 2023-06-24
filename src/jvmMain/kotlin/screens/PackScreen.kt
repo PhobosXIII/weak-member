@@ -7,16 +7,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import commonUi.AppBar
-import commonUi.PackDialog
-import commonUi.QuestionDialog
-import commonUi.getComplexityColor
+import commonUi.*
 import db.entities.Question
 import db.entities.QuestionPack
 import findParameterValue
@@ -34,6 +32,7 @@ fun PackScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     var pack: QuestionPack? by remember { mutableStateOf(null) }
     var currentQuestion: QuestionViewState by remember { mutableStateOf(QuestionViewState()) }
+    val packName = pack?.name ?: ""
 
     coroutineScope.launch {
         val id = URI(navController.currentScreen.value).findParameterValue("id")?.toInt() ?: -1
@@ -46,11 +45,11 @@ fun PackScreen(navController: NavController) {
     if (isPackDialogOpen) {
         PackDialog(
             onCloseRequest = { isPackDialogOpen = false },
-            onSave = { packName ->
+            onSave = { newPackName ->
                 isPackDialogOpen = false
                 coroutineScope.launch {
                     newSuspendedTransaction(Dispatchers.IO) {
-                        pack?.name = packName
+                        pack?.name = newPackName
                     }
                 }
             },
@@ -84,10 +83,45 @@ fun PackScreen(navController: NavController) {
         )
     }
 
+    var isPackDeleteConfirmationDialogOpen by remember { mutableStateOf(false) }
+    if (isPackDeleteConfirmationDialogOpen) {
+        DeleteConfirmationDialog(
+            onCloseRequest = { isPackDeleteConfirmationDialogOpen = false },
+            onConfirm = {
+                coroutineScope.launch {
+                    newSuspendedTransaction(Dispatchers.IO) {
+                        pack?.delete()
+                        isPackDeleteConfirmationDialogOpen = false
+                        navController.navigateBack()
+                    }
+                }
+            },
+            text = "Вы уверены, что хотите удалить пакет '$packName' со всеми вопросами?",
+            title = "Удалить пакет?",
+        )
+    }
+
+    var isQuestionDeleteConfirmationDialogOpen by remember { mutableStateOf(false) }
+    if (isQuestionDeleteConfirmationDialogOpen) {
+        DeleteConfirmationDialog(
+            onCloseRequest = { isQuestionDeleteConfirmationDialogOpen = false },
+            onConfirm = {
+                coroutineScope.launch {
+                    newSuspendedTransaction(Dispatchers.IO) {
+                        Question.findById(currentQuestion.id)?.delete()
+                        isQuestionDeleteConfirmationDialogOpen = false
+                    }
+                }
+            },
+            text = "Вы уверены, что хотите удалить вопрос?",
+            title = "Удалить вопрос?",
+        )
+    }
+
     Scaffold(
         topBar = {
             AppBar(
-                title = pack?.name ?: "",
+                title = packName,
                 onBackClick = { navController.navigateBack() },
                 actions = {
                     IconButton(
@@ -98,42 +132,75 @@ fun PackScreen(navController: NavController) {
                             contentDescription = null,
                         )
                     }
+
+                    IconButton(
+                        onClick = { isQuestionDeleteConfirmationDialogOpen = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = null,
+                        )
+                    }
                 }
             )
         },
-        content = {
-            val questions = transaction {
-                pack?.questions?.toList() ?: emptyList()
-            }
+    ) {
+        val questions = transaction {
+            pack?.questions?.toList() ?: emptyList()
+        }
 
-            Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        currentQuestion = QuestionViewState()
-                        isQuestionDialogOpen = true
-                    },
-                    content = {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = null,
-                        )
-                    },
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                )
-
-                if (questions.isEmpty()) {
-                    Text(
-                        text = "Вы не добавили пока ни одного вопроса.",
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    currentQuestion = QuestionViewState()
+                    isQuestionDialogOpen = true
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
                     )
-                } else {
-                    LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        items(questions) { question ->
+                },
+                modifier = Modifier.align(Alignment.BottomEnd),
+            )
+
+            if (questions.isEmpty()) {
+                Text(
+                    text = "Вы пока не добавили ни одного вопроса.",
+                )
+            } else {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    items(questions) { question ->
+                        Box {
+                            var expanded by remember { mutableStateOf(false) }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        isQuestionDialogOpen = true
+                                        expanded = false
+                                    }
+                                ) {
+                                    Text("Редактировать")
+                                }
+                                DropdownMenuItem(
+                                    onClick = {
+                                        isQuestionDeleteConfirmationDialogOpen = true
+                                        expanded = false
+                                    }
+                                ) {
+                                    Text("Удалить")
+                                }
+                            }
+
                             Card(
                                 border = BorderStroke(width = 2.dp, color = question.complexity.getComplexityColor()),
                                 onClick = {
@@ -142,7 +209,7 @@ fun PackScreen(navController: NavController) {
                                         text = question.text,
                                         complexity = question.complexity,
                                     )
-                                    isQuestionDialogOpen = true
+                                    expanded = true
                                 },
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                             ) {
@@ -163,5 +230,5 @@ fun PackScreen(navController: NavController) {
                 }
             }
         }
-    )
+    }
 }

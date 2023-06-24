@@ -36,6 +36,9 @@ fun PackDialog(
                         name = it
                     }
                 },
+                label = {
+                    Text(text = "Имя пакета")
+                },
                 modifier = Modifier.fillMaxWidth()
             )
             SpacerHeight(4.dp)
