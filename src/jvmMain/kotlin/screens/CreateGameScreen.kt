@@ -1,7 +1,12 @@
 package screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -35,10 +40,14 @@ fun CreateGameScreen(navController: NavController) {
         },
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(state = rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+
+            ) {
             var name by remember { mutableStateOf("Новая игра") }
             var roundsCount by remember { mutableStateOf(6) }
             val players = remember { mutableStateListOf<PlayerViewState>() }
@@ -75,10 +84,22 @@ fun CreateGameScreen(navController: NavController) {
                                 this.roundsCount = roundsCount
                             }
 
+                            val firstPlayer = players.minByOrNull { it.name }?.let { player ->
+                                players.removeIf { it.number == player.number }
+
+                                Player.new {
+                                    this.name = player.name
+                                    this.number = player.number
+                                    this.game = newGame
+                                }
+
+                            }
+
                             for (i in 1..roundsCount) {
                                 val round = Round.new {
                                     this.game = newGame
                                     this.number = i
+                                    if (i == 1) this.currentPlayer = firstPlayer
                                 }
 
                                 if (i == 1) newGame.currentRound = round
@@ -110,21 +131,55 @@ private fun Players(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(
             text = "Игроки",
             style = MaterialTheme.typography.h4,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
-        for ((i, player) in players.withIndex()) {
-            TextField(
-                value = player.name,
-                onValueChange = {
-                    val updatedPlayer = player.copy(name = it)
-                    players[i] = updatedPlayer
-                },
-            )
+        for (player in players) {
+            val i = player.number
+            Row {
+                TextField(
+                    value = player.name,
+                    onValueChange = {
+                        players[i - 1] = player.copy(name = it)
+                    },
+                )
+
+                SpacerWidth(8.dp)
+
+                if (i != players.size && players.size != 1) {
+                    IconButton(
+                        onClick = {
+                            players[i - 1] = players[i].copy(number = player.number)
+                            players[i] = player.copy(number = player.number + 1)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDownward,
+                            contentDescription = null,
+                        )
+                    }
+                }
+
+                if (i != 1 && players.size != 1) {
+                    SpacerWidth(4.dp)
+                    IconButton(
+                        onClick = {
+                            players[i - 1] = players[i - 2].copy(number = player.number)
+                            players[i - 2] = player.copy(number = player.number - 1)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowUpward,
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
         }
 
         Row {
@@ -133,12 +188,20 @@ private fun Players(
                 value = name,
                 onValueChange = { name = it },
             )
+
             SpacerWidth(8.dp)
+
             Button(
                 onClick = {
-                    players.add(PlayerViewState(name = name))
+                    players.add(
+                        PlayerViewState(
+                            name = name,
+                            number = players.size + 1,
+                        )
+                    )
                     name = ""
                 },
+                enabled = name.isNotBlank()
             ) {
                 Text(text = "Добавить")
             }

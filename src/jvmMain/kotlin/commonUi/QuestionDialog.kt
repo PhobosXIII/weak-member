@@ -70,7 +70,7 @@ fun QuestionDialog(
 
             Button(
                 onClick = { onSave(question.copy(text = text, complexity = complexity)) },
-                enabled = text.isNotEmpty()
+                enabled = text.isNotBlank()
             ) {
                 Text(
                     text = if (question.isNew()) "Создать" else "Изменить",

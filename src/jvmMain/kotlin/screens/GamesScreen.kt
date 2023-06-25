@@ -38,23 +38,13 @@ fun GamesScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            FloatingActionButton(
-                onClick = { navController.navigate(Screen.CreateGameScreen.name) },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                    )
-                },
-                modifier = Modifier.align(Alignment.BottomEnd),
-            )
-
             if (games.isEmpty()) {
                 Text(
                     text = "Вы пока не создали ни одной игры.",
                 )
             } else {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
@@ -67,6 +57,17 @@ fun GamesScreen(navController: NavController) {
                     }
                 }
             }
+
+            FloatingActionButton(
+                onClick = { navController.navigate(Screen.CreateGameScreen.name) },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                    )
+                },
+                modifier = Modifier.align(Alignment.BottomEnd),
+            )
         }
     }
 }

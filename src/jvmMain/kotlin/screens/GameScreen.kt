@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import commonUi.AppBar
 import db.entities.Game
@@ -109,11 +110,15 @@ private fun Players(
 
         for (player in players) {
             Card(
-                modifier = Modifier.padding(4.dp),
-                border = BorderStroke(width = 2.dp, color = MaterialTheme.colors.secondary),
+                border = if (player.current) BorderStroke(
+                    width = 2.dp,
+                    color = MaterialTheme.colors.secondary
+                ) else null,
             ) {
                 Text(
                     text = player.name,
+                    fontWeight = if (player.current) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.padding(6.dp),
                 )
             }
         }

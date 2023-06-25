@@ -61,20 +61,13 @@ fun PacksScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            AddPackButton(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                onImport = {},
-                onCreate = {
-                    isDialogOpen = true
-                }
-            )
-
             if (packs.isEmpty()) {
                 Text(
                     text = "Вы пока не добавили ни одного пакета вопрпосов.",
                 )
             } else {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
@@ -87,6 +80,14 @@ fun PacksScreen(navController: NavController) {
                     }
                 }
             }
+
+            AddPackButton(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onImport = {},
+                onCreate = {
+                    isDialogOpen = true
+                }
+            )
         }
     }
 }

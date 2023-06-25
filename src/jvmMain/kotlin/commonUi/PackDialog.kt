@@ -52,7 +52,7 @@ fun PackDialog(
 
             Button(
                 onClick = { onSave(name) },
-                enabled = name.isNotEmpty()
+                enabled = name.isNotBlank()
             ) {
                 Text(text = if (packName.isEmpty()) "Создать" else "Изменить")
             }

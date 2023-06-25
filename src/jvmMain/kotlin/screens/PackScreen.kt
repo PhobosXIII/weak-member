@@ -153,26 +153,13 @@ fun PackScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            FloatingActionButton(
-                onClick = {
-                    currentQuestion = QuestionViewState()
-                    isQuestionDialogOpen = true
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                    )
-                },
-                modifier = Modifier.align(Alignment.BottomEnd),
-            )
-
             if (questions.isEmpty()) {
                 Text(
                     text = "Вы пока не добавили ни одного вопроса.",
                 )
             } else {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
@@ -229,6 +216,20 @@ fun PackScreen(navController: NavController) {
                     }
                 }
             }
+
+            FloatingActionButton(
+                onClick = {
+                    currentQuestion = QuestionViewState()
+                    isQuestionDialogOpen = true
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                    )
+                },
+                modifier = Modifier.align(Alignment.BottomEnd),
+            )
         }
     }
 }
