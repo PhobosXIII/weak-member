@@ -7,10 +7,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PackDialog(
     onCloseRequest: () -> Unit,
@@ -28,6 +33,11 @@ fun PackDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             var name by remember { mutableStateOf(packName) }
+            val textFieldFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(key1 = textFieldFocusRequester) {
+                textFieldFocusRequester.requestFocus()
+            }
 
             TextField(
                 value = name,
@@ -39,7 +49,20 @@ fun PackDialog(
                 label = {
                     Text(text = "Имя пакета")
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(textFieldFocusRequester)
+                    .onPreviewKeyEvent {
+                        when {
+                            it.key == Key.Enter && it.type == KeyEventType.KeyUp -> {
+                                onSave(name)
+                                true
+                            }
+
+                            else -> false
+                        }
+                    },
+                singleLine = true,
             )
             SpacerHeight(4.dp)
             Text(

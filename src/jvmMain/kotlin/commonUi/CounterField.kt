@@ -40,6 +40,7 @@ fun CounterField(
             onValueChange = { onValueChange(newValue) },
             modifier = Modifier.width(60.dp),
             readOnly = true,
+            singleLine = true,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
         )
 

@@ -6,6 +6,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,13 +31,18 @@ fun QuestionDialog(
         ) {
             var text by remember { mutableStateOf(question.text) }
             var complexity by remember { mutableStateOf(question.complexity) }
+            val textFieldFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(key1 = textFieldFocusRequester) {
+                textFieldFocusRequester.requestFocus()
+            }
 
             TextField(
                 value = text,
                 onValueChange = {
                     text = it
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusRequester(textFieldFocusRequester),
                 minLines = 3,
                 label = {
                     Text(text = "Текст вопроса")

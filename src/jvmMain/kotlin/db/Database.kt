@@ -19,7 +19,7 @@ class Database {
 
         fun fillData() {
             transaction {
-                SchemaUtils.create(QuestionPacks, Questions, Games, Players, Rounds)
+                SchemaUtils.create(QuestionPacks, Questions, Games, Players, Rounds, GameQuestions, PlayerBanks)
 
                 val testPack = QuestionPack.new {
                     name = "Test pack"
