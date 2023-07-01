@@ -8,7 +8,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 object PlayerBanks : IntIdTable() {
     val round = reference(name = "round", foreign = Rounds)
     val player = reference(name = "player", foreign = Players)
-    val bank = integer(name = "bank")
+    val bank = integer(name = "bank").default(0)
 }
 
 class PlayerBank(id: EntityID<Int>) : IntEntity(id) {

@@ -36,6 +36,60 @@ class Database {
                     complexity = 2
                     pack = testPack
                 }
+
+                Question.new {
+                    text = "Some text 3"
+                    complexity = 1
+                    pack = testPack
+                }
+
+                val testGame = Game.new {
+                    name = "Новая игра"
+                    roundsCount = 6
+                }
+
+                val testPlayers = listOf(
+                    Player.new {
+                        this.name = "Max"
+                        this.order = 0
+                        this.game = testGame
+                    },
+                    Player.new {
+                        this.name = "Alex"
+                        this.order = 1
+                        this.game = testGame
+                    },
+                    Player.new {
+                        this.name = "John"
+                        this.order = 2
+                        this.game = testGame
+                    }
+                )
+                val firstPlayer = testPlayers.minByOrNull { it.name }
+
+                for (i in 1..6) {
+                    val round = Round.new {
+                        this.game = testGame
+                        this.number = i
+                        if (i == 1) this.currentPlayer = firstPlayer
+                    }
+
+                    if (i == 1) testGame.currentRound = round
+
+                    testPlayers.forEach { player ->
+                        PlayerBank.new {
+                            this.player = player
+                            this.round = round
+                        }
+                    }
+                }
+
+                testPack.questions.forEach { question ->
+                    GameQuestion.new {
+                        this.game = testGame
+                        this.question = question
+                    }
+                }
             }
         }
     }

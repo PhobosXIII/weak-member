@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 object Players : IntIdTable() {
     val name = text(name = "name")
-    val number = integer(name = "number")
+    val order = integer(name = "order")
     val game = reference(name = "game", foreign = Games, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -16,6 +16,6 @@ class Player(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Player>(Players)
 
     var name by Players.name
-    var number by Players.number
+    var order by Players.order
     var game by Game referencedOn Players.game
 }

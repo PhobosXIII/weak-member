@@ -11,6 +11,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import getComplexityColor
 import viewStates.QuestionViewState
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -92,11 +93,4 @@ private fun Int.getComplexityLabel(): String = when (this) {
     1 -> "Средний"
     2 -> "Сложный"
     else -> "Запредельный"
-}
-
-fun Int.getComplexityColor(): Color = when (this) {
-    0 -> Color.Green
-    1 -> Color.Yellow
-    2 -> Color.Red
-    else -> Color.Gray
 }

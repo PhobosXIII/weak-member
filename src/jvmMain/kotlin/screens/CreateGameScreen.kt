@@ -108,7 +108,7 @@ fun CreateGameScreen(navController: NavController) {
                             val newPlayers = players.map { player ->
                                 Player.new {
                                     this.name = player.name
-                                    this.number = player.number
+                                    this.order = player.order
                                     this.game = newGame
                                 }
                             }
@@ -123,6 +123,13 @@ fun CreateGameScreen(navController: NavController) {
                                 }
 
                                 if (i == 1) newGame.currentRound = round
+
+                                newPlayers.forEach { player ->
+                                    PlayerBank.new {
+                                        this.player = player
+                                        this.round = round
+                                    }
+                                }
                             }
 
                             QuestionPack.findById(selectedPack?.id ?: 0)?.questions?.forEach { question ->
@@ -159,7 +166,7 @@ private fun Players(
         )
 
         for (player in players) {
-            val i = player.number
+            val i = player.order
             Row {
                 TextField(
                     value = player.name,
@@ -177,8 +184,8 @@ private fun Players(
                     if (i != players.size && players.size != 1) {
                         IconButton(
                             onClick = {
-                                players[i - 1] = players[i].copy(number = player.number)
-                                players[i] = player.copy(number = player.number + 1)
+                                players[i - 1] = players[i].copy(order = player.order)
+                                players[i] = player.copy(order = player.order + 1)
                             },
                         ) {
                             Icon(
@@ -191,8 +198,8 @@ private fun Players(
                     if (i != 1 && players.size != 1) {
                         IconButton(
                             onClick = {
-                                players[i - 1] = players[i - 2].copy(number = player.number)
-                                players[i - 2] = player.copy(number = player.number - 1)
+                                players[i - 1] = players[i - 2].copy(order = player.order)
+                                players[i - 2] = player.copy(order = player.order - 1)
                             },
                         ) {
                             Icon(
@@ -223,7 +230,7 @@ private fun Players(
                 players.add(
                     PlayerViewState(
                         name = name,
-                        number = players.size + 1,
+                        order = players.size + 1,
                     )
                 )
                 name = ""

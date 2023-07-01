@@ -1,6 +1,5 @@
 package screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import commonUi.*
 import db.entities.Question
@@ -188,8 +186,9 @@ fun PackScreen(navController: NavController) {
                                 }
                             }
 
-                            Card(
-                                border = BorderStroke(width = 2.dp, color = question.complexity.getComplexityColor()),
+                            QuestionCard(
+                                text = question.text,
+                                complexity = question.complexity,
                                 onClick = {
                                     currentQuestion = QuestionViewState(
                                         id = question.id.value,
@@ -198,20 +197,8 @@ fun PackScreen(navController: NavController) {
                                     )
                                     expanded = true
                                 },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = question.text,
-                                        modifier = Modifier
-                                            .padding(vertical = 4.dp, horizontal = 8.dp)
-                                            .align(Alignment.Center),
-                                        textAlign = TextAlign.Center,
-                                    )
-                                }
-                            }
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                         }
                     }
                 }
