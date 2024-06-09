@@ -5,7 +5,8 @@ val h2Version: String by project
 val logbackVersion: String by project
 
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
+    kotlin("plugin.compose")
     id("org.jetbrains.compose")
 }
 
@@ -18,24 +19,13 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
-kotlin {
-    jvm {
-        jvmToolchain(11)
-        withJava()
-    }
-    sourceSets {
-        val jvmMain by getting {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-                implementation(compose.materialIconsExtended)
-                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-                implementation("com.h2database:h2:$h2Version")
-            }
-        }
-        val jvmTest by getting
-    }
+dependencies {
+    implementation(compose.desktop.currentOs)
+    implementation(compose.materialIconsExtended)
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("com.h2database:h2:$h2Version")
 }
 
 compose.desktop {

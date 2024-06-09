@@ -13,7 +13,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -23,7 +23,7 @@ fun PackDialog(
     packName: String = "",
 ) {
     val maxNameLength = 100
-    Dialog(
+    DialogWindow(
         onCloseRequest = onCloseRequest,
         title = if (packName.isEmpty()) "Создать новый пакет" else "Редактировать пакет",
     ) {

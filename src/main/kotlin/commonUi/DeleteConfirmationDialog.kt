@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -18,7 +18,7 @@ fun DeleteConfirmationDialog(
     text: String,
     title: String,
 ) {
-    Dialog(
+    DialogWindow(
         onCloseRequest = onCloseRequest,
         title = title,
     ) {

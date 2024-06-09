@@ -10,7 +10,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import getComplexityColor
 import viewStates.QuestionViewState
 
@@ -21,7 +21,7 @@ fun QuestionDialog(
     onSave: (QuestionViewState) -> Unit,
     question: QuestionViewState,
 ) {
-    Dialog(
+    DialogWindow(
         onCloseRequest = onCloseRequest,
         title = if (question.isNew()) "Создать новый вопрос" else "Редактировать вопрос",
     ) {
