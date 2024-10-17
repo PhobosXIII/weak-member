@@ -125,7 +125,7 @@ fun CreateGameScreen(navController: NavController) {
                                 if (i == 1) newGame.currentRound = round
 
                                 newPlayers.forEach { player ->
-                                    PlayerBank.new {
+                                    PlayerStat.new {
                                         this.player = player
                                         this.round = round
                                     }

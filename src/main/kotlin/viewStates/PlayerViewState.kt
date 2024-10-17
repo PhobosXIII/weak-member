@@ -8,4 +8,6 @@ data class PlayerViewState(
     val name: String = "",
     val order: Int = 0,
     val current: Boolean = false,
+    val answers: Int = 0,
+    val bank: Int = 0,
 )

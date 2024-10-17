@@ -19,7 +19,7 @@ class Database {
 
         fun fillData() {
             transaction {
-                SchemaUtils.create(QuestionPacks, Questions, Games, Players, Rounds, GameQuestions, PlayerBanks)
+                SchemaUtils.create(QuestionPacks, Questions, Games, Players, Rounds, GameQuestions, PlayerStats)
 
                 val testPack = QuestionPack.new {
                     name = "Test pack"
@@ -77,7 +77,7 @@ class Database {
                     if (i == 1) testGame.currentRound = round
 
                     testPlayers.forEach { player ->
-                        PlayerBank.new {
+                        PlayerStat.new {
                             this.player = player
                             this.round = round
                         }

@@ -8,13 +8,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import commonUi.AppBar
 import commonUi.QuestionCard
+import commonUi.SpacerHeight
 import db.entities.*
 import findParameterValue
 import kotlinx.coroutines.launch
 import navigation.NavController
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import viewStates.PlayerViewState
@@ -27,7 +30,9 @@ fun GameScreen(navController: NavController) {
     var game: Game? by remember { mutableStateOf(null) }
     var currentRound: Round? by remember { mutableStateOf(null) }
     var currentPlayer: Player? by remember { mutableStateOf(null) }
+    var currentPlayerStat: PlayerStat? by remember { mutableStateOf(null) }
     var players by remember { mutableStateOf(emptyList<Player>()) }
+    var playersStat by remember { mutableStateOf(emptyList<PlayerStat>()) }
     var currentQuestion: Question? by remember { mutableStateOf(null) }
     var totalBank by remember { mutableStateOf(0) }
 
@@ -43,6 +48,16 @@ fun GameScreen(navController: NavController) {
             currentPlayer = currentRound?.currentPlayer
             currentQuestion = currentRound?.currentQuestion?.question
             totalBank = game?.rounds?.sumOf { it.bank } ?: 0
+
+            currentRound?.let { round ->
+                playersStat = PlayerStat.find { PlayerStats.round eq round.id }.toList()
+
+                currentPlayer?.let { player ->
+                    currentPlayerStat =
+                        PlayerStat.find { (PlayerStats.player eq player.id) and (PlayerStats.round eq round.id) }
+                            .firstOrNull()
+                }
+            }
         }
     }
 
@@ -76,26 +91,39 @@ fun GameScreen(navController: NavController) {
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
 
+                SpacerHeight(16.dp)
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Players(
                         players = players
-                            .map {
+                            .map { player ->
+                                val playerStat = transaction {
+                                    playersStat.find { it.player == currentPlayer }
+                                }
+
                                 PlayerViewState(
-                                    name = it.name,
-                                    current = currentPlayer?.order == it.order
+                                    name = player.name,
+                                    current = currentPlayer?.order == player.order,
+                                    answers = playerStat?.answers ?: 0,
+                                    bank = playerStat?.bank ?: 0,
                                 )
-                            }
+                            },
+                        modifier = Modifier.weight(0.3f),
                     )
 
-                    currentQuestion?.let {
-                        QuestionCard(
-                            text = it.text,
-                            complexity = it.complexity,
-                            onClick = {},
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                    Box(
+                        modifier = Modifier.weight(0.7f),
+                    ) {
+                        currentQuestion?.let {
+                            QuestionCard(
+                                text = it.text,
+                                complexity = it.complexity,
+                                onClick = {},
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                 }
             }
@@ -139,6 +167,13 @@ fun GameScreen(navController: NavController) {
                                     gameQuestion?.isCorrect = isCorrect
                                 }
                                 currentRound?.let { round ->
+                                    if (isCorrect) {
+                                        val answers = currentPlayerStat?.answers
+                                        if (answers != null) {
+                                            currentPlayerStat?.answers = answers.inc()
+                                        }
+                                    }
+
                                     round.currentQuestion =
                                         GameQuestion.find { GameQuestions.player eq null }.firstOrNull()
                                     val nextPlayer = players.firstOrNull { it.order == currentPlayer?.order?.inc() }
@@ -175,12 +210,8 @@ fun GameScreen(navController: NavController) {
                             coroutineScope.launch {
                                 newSuspendedTransaction {
                                     currentRound?.let { round ->
-                                        currentPlayer?.let { player ->
-                                            val playerBank =
-                                                PlayerBank.find { PlayerBanks.player eq player.id }.firstOrNull()
-                                            playerBank?.bank = round.currentBank
-                                        }
-                                        round.bank = round.bank + round.currentBank
+                                        currentPlayerStat?.bank = round.currentBank
+                                        round.bank += round.currentBank
                                         round.currentBank = 0
                                     }
                                 }
@@ -199,28 +230,83 @@ fun GameScreen(navController: NavController) {
 @Composable
 private fun Players(
     players: List<PlayerViewState>,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
     ) {
         Text(
             text = "Игроки",
             style = MaterialTheme.typography.h5,
         )
 
-        for (player in players) {
-            Card(
-                border = if (player.current) BorderStroke(
-                    width = 2.dp,
-                    color = MaterialTheme.colors.secondary
-                ) else null,
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = player.name,
-                    fontWeight = if (player.current) FontWeight.Bold else FontWeight.Normal,
-                    modifier = Modifier.padding(6.dp),
+                    text = "Имя",
+                    style = MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(0.5f),
                 )
+
+                Text(
+                    text = "Ответы",
+                    style = MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(0.25f),
+                )
+
+                Text(
+                    text = "Банк",
+                    style = MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(0.25f),
+                )
+            }
+
+            for (player in players) {
+                val fontWeight = if (player.current) FontWeight.Bold else FontWeight.Normal
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    Card(
+                        modifier = Modifier.weight(0.5f),
+                        border = if (player.current) BorderStroke(
+                            width = 2.dp,
+                            color = MaterialTheme.colors.secondary
+                        ) else null,
+                    ) {
+                        Text(
+                            text = player.name,
+                            fontWeight = fontWeight,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(6.dp),
+                        )
+                    }
+
+                    Text(
+                        text = player.answers.toString(),
+                        fontWeight = fontWeight,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(6.dp).weight(0.25f),
+                    )
+
+                    Text(
+                        text = player.bank.toString(),
+                        fontWeight = fontWeight,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(6.dp).weight(0.25f),
+                    )
+                }
             }
         }
     }
